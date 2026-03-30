@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Report{% endblock %}
+{% block page_title %}Generate New Report{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="card-title"><i class="fas fa-chart-bar"></i> Report Generation</h3>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 25px;">
+                    <label class="form-label-custom">Select Report Type</label>
+                    
+                    {% for value, label in report_types %}
+                    <div style="background: rgba(255, 107, 53, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 107, 53, 0.2); cursor: pointer; transition: all 0.3s ease;"
+                         onclick="document.getElementById('report_{{ value }}').checked = true; this.style.borderColor='#ff6b35'; this.style.background='rgba(255, 107, 53, 0.2)';">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <input type="radio" name="report_type" value="{{ value }}" id="report_{{ value }}" required
+                                   style="width: 20px; height: 20px; accent-color: #ff6b35;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;">{{ label }}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
+                                    {% if value == 'security_assessment' %}
+                                        Overview of security posture with vulnerability counts and scan statistics
+                                    {% elif value == 'vulnerability_summary' %}
+                                        Detailed list of all detected vulnerabilities with severity levels
+                                    {% elif value == 'defense_recommendations' %}
+                                        AI-generated defense techniques and implementation priorities
+                                    {% elif value == 'mitigation_results' %}
+                                        Track completed defense implementations and success rates
+                                    {% elif value == 'comprehensive' %}
+                                        Complete security report including all sections and analytics
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <i class="fas fa-
+                                {% if value == 'security_assessment' %}shield-alt
+                                {% elif value == 'vulnerability_summary' %}bug
+                                {% elif value == 'defense_recommendations' %}lightbulb
+                                {% elif value == 'mitigation_results' %}check-circle
+                                {% else %}file-alt{% endif %}" 
+                               style="font-size: 2rem; color: #ff6b35;"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div style="background: rgba(13, 180, 185, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #0db4b9; margin-bottom: 25px;">
+                    <div style="display: flex; gap: 15px;">
+                        <i class="fas fa-info-circle" style="font-size: 1.5rem; color: #0db4b9;"></i>
+                        <div>
+                            <strong style="color: #00d4a1;">Report Information</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
+                                Reports are generated instantly and can be downloaded in JSON format. 
+                                You can generate multiple reports and compare them over time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                    <a href="{% url 'reports:report_list' %}" class="btn btn-gradient-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-gradient-primary">
+                        <i class="fas fa-chart-bar"></i> Generate Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

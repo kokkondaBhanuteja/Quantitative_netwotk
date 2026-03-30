@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Network Configuration{% endblock %}
+{% block page_title %}Network Configuration Management{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-custom">
+        <h3 class="card-title"><i class="fas fa-network-wired"></i> All Network Environments</h3>
+    </div>
+    
+    {% if environments %}
+    <div class="row">
+        {% for env in environments %}
+        <div class="col-md-6">
+            <div style="background: linear-gradient(135deg, rgba(13, 180, 185, 0.2) 0%, rgba(0, 212, 161, 0.2) 100%); 
+                        padding: 25px; border-radius: 15px; margin-bottom: 20px; 
+                        border: 1px solid rgba(13, 180, 185, 0.3);">
+                
+                <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 15px;">
+                    <h4 style="margin: 0; color: #0db4b9; flex: 1;">{{ env.name }}</h4>
+                    {% if env.is_active %}
+                        <span class="badge badge-low"><i class="fas fa-check"></i> Active</span>
+                    {% else %}
+                        <span class="badge badge-critical">Inactive</span>
+                    {% endif %}
+                </div>
+                
+                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 15px;">{{ env.description }}</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; margin-bottom: 5px;">IP Range</div>
+                        <code style="color: #00d4a1;">{{ env.ip_range }}</code>
+                    </div>
+                    <div>
+                        <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; margin-bottom: 5px;">Type</div>
+                        <span class="badge badge-medium">{{ env.get_network_type_display }}</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem;">
+                        Created by {{ env.created_by.username }}
+                    </div>
+                    <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem;">
+                        {{ env.created_at|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px;">
+        <i class="fas fa-network-wired" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
+        <h4 style="margin-bottom: 10px;">No Network Environments</h4>
+        <p style="color: rgba(255, 255, 255, 0.6);">No network environments have been configured yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

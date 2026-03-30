@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}User Detail - {{ user_obj.username }}{% endblock %}
+{% block page_title %}User Details{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 2rem; border: 3px solid rgba(255, 255, 255, 0.2);">
+                {{ user_obj.username.0|upper }}
+            </div>
+            <div>
+                <h2 style="font-family: 'Orbitron', sans-serif; margin-bottom: 5px;">{{ user_obj.get_full_name|default:user_obj.username }}</h2>
+                <div style="color: rgba(255, 255, 255, 0.7); margin-bottom: 10px;">@{{ user_obj.username }}</div>
+                <div style="display: flex; gap: 10px;">
+                    <span class="badge {% if user_obj.profile.role == 'admin' %}badge-critical{% else %}badge-medium{% endif %}">
+                        {{ user_obj.profile.role|title }}
+                    </span>
+                    {% if user_obj.is_active %}
+                        <span class="badge badge-low"><i class="fas fa-check"></i> Active</span>
+                    {% else %}
+                        <span class="badge badge-critical"><i class="fas fa-times"></i> Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <a href="{% url 'admin_panel:toggle_user_role' user_obj.id %}" class="btn btn-gradient-accent">
+            <i class="fas fa-user-shield"></i> Toggle Role
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- User Information -->
+            <div style="background: rgba(255, 107, 53, 0.1); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                <h5 style="color: #ff6b35; margin-bottom: 20px;">
+                    <i class="fas fa-info-circle"></i> User Information
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Email</div>
+                        <div style="font-weight: 600;">{{ user_obj.email }}</div>
+                    </div>
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Phone</div>
+                        <div style="font-weight: 600;">{{ user_obj.profile.phone|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Organization</div>
+                        <div style="font-weight: 600;">{{ user_obj.profile.organization|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Joined</div>
+                        <div style="font-weight: 600;">{{ user_obj.date_joined|date:"M d, Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Scans -->
+            <div class="content-card" style="background: rgba(26, 26, 46, 0.5); margin-bottom: 20px;">
+                <h5 style="color: #0db4b9; margin-bottom: 15px;">
+                    <i class="fas fa-radar"></i> User Scans ({{ scans.count }})
+                </h5>
+                
+                {% if scans %}
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Scan Name</th>
+                                <th>Status</th>
+                                <th>Vulnerabilities</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scan in scans %}
+                            <tr>
+                                <td><strong>{{ scan.scan_name|truncatewords:6 }}</strong></td>
+                                <td>
+                                    {% if scan.status == 'completed' %}
+                                        <span class="badge badge-low">Completed</span>
+                                    {% else %}
+                                        <span class="badge badge-high">{{ scan.status|title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-critical">{{ scan.critical_count }}</span>
+                                    <span class="badge badge-high">{{ scan.high_count }}</span>
+                                </td>
+                                <td>{{ scan.start_time|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No scans performed.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Recent Activity -->
+            <div class="content-card" style="background: rgba(26, 26, 46, 0.5);">
+                <h5 style="color: #38ef7d; margin-bottom: 15px;">
+                    <i class="fas fa-history"></i> Recent Activity
+                </h5>
+                
+                {% if activities %}
+                <div style="max-height: 500px; overflow-y: auto;">
+                    {% for activity in activities %}
+                    <div style="padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="font-size: 0.9rem; margin-bottom: 3px;">{{ activity.action }}</div>
+                        <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5);">
+                            {{ activity.timestamp|date:"M d, Y H:i" }}
+                        </div>
+                        {% if activity.ip_address %}
+                        <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4);">
+                            IP: {{ activity.ip_address }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No activity recorded.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'admin_panel:user_management' %}" class="btn btn-gradient-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+    </div>
+</div>
+{% endblock %}

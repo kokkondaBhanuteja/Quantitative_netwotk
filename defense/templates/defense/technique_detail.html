@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ technique.name }}{% endblock %}
+{% block page_title %}Defense Technique Details{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div style="margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+            <h2 style="font-family: 'Orbitron', sans-serif; color: #38ef7d; margin-bottom: 10px;">
+                {{ technique.name }}
+            </h2>
+            <span class="badge badge-accent" style="font-size: 1rem; padding: 10px 20px;">
+                {{ technique.get_category_display }}
+            </span>
+        </div>
+        
+        <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.05rem; line-height: 1.8; margin-bottom: 30px;">
+            {{ technique.description }}
+        </p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div style="background: rgba(56, 239, 125, 0.1); padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+                <h5 style="color: #38ef7d; margin-bottom: 20px;">
+                    <i class="fas fa-chart-line"></i> Performance Metrics
+                </h5>
+                
+                <div style="margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Effectiveness Score</span>
+                        <strong style="color: #38ef7d; font-size: 1.2rem;">{{ technique.effectiveness_score }}%</strong>
+                    </div>
+                    <div style="width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
+                        <div style="height: 100%; background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%); width: {{ technique.effectiveness_score }}%;"></div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div>
+                        <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; margin-bottom: 8px;">Implementation Difficulty</div>
+                        <span class="badge 
+                            {% if technique.implementation_difficulty == 'easy' %}badge-low
+                            {% elif technique.implementation_difficulty == 'moderate' %}badge-medium
+                            {% else %}badge-high{% endif %}" style="font-size: 1rem;">
+                            {{ technique.implementation_difficulty|title }}
+                        </span>
+                    </div>
+                    
+                    <div>
+                        <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; margin-bottom: 8px;">Estimated Cost</div>
+                        <div style="color: #ff6b35; font-weight: 700; font-size: 1.2rem;">
+                            ${{ technique.estimated_cost|floatformat:0 }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; margin-bottom: 8px;">Implementation Time</div>
+                        <div style="color: #0db4b9; font-weight: 700; font-size: 1.1rem;">
+                            {{ technique.implementation_time }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if technique.prerequisites %}
+            <div style="background: rgba(247, 183, 49, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #f7b731;">
+                <h5 style="color: #f7b731; margin-bottom: 15px;">
+                    <i class="fas fa-clipboard-check"></i> Prerequisites
+                </h5>
+                <p style="color: rgba(255, 255, 255, 0.8); line-height: 1.7; margin: 0;">
+                    {{ technique.prerequisites }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div style="background: rgba(26, 26, 46, 0.5); padding: 25px; border-radius: 12px;">
+                <h5 style="color: #0db4b9; margin-bottom: 20px;">
+                    <i class="fas fa-info-circle"></i> Technical Info
+                </h5>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Category</div>
+                    <div style="font-weight: 600;">{{ technique.get_category_display }}</div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Created</div>
+                    <div style="font-weight: 600;">{{ technique.created_at|date:"M d, Y" }}</div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Last Updated</div>
+                    <div style="font-weight: 600;">{{ technique.updated_at|date:"M d, Y" }}</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <a href="{% url 'defense:technique_list' %}" class="btn btn-gradient-secondary w-100">
+                    <i class="fas fa-arrow-left"></i> Back to Techniques
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

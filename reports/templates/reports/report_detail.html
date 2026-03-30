@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ report.title }}{% endblock %}
+{% block page_title %}Report Details{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 30px;">
+        <div>
+            <h2 style="font-family: 'Orbitron', sans-serif; margin-bottom: 10px;">{{ report.title }}</h2>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <span style="color: rgba(255, 255, 255, 0.7);">
+                    <i class="fas fa-calendar"></i> {{ report.generated_at|date:"M d, Y H:i" }}
+                </span>
+                <span style="color: rgba(255, 255, 255, 0.7);">
+                    <i class="fas fa-user"></i> {{ report.generated_by.username }}
+                </span>
+                <span class="badge badge-medium">{{ report.get_report_type_display }}</span>
+            </div>
+        </div>
+        <a href="{% url 'reports:download_report' report.pk %}" class="btn btn-gradient-accent">
+            <i class="fas fa-download"></i> Download JSON
+        </a>
+    </div>
+    
+    <div style="background: rgba(26, 26, 46, 0.5); padding: 30px; border-radius: 12px; border: 1px solid rgba(255, 107, 53, 0.2);">
+        <h5 style="color: #ff6b35; margin-bottom: 20px;">
+            <i class="fas fa-code"></i> Report Data (JSON)
+        </h5>
+        <pre style="background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 8px; overflow-x: auto; color: #00d4a1; font-family: 'Courier New', monospace; line-height: 1.6;">{{ report.content|safe }}</pre>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'reports:report_list' %}" class="btn btn-gradient-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Reports
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Network Security System{% endblock %}
+
+{% block auth_content %}
+<style>
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        padding: 20px;
+    }
+    
+    .auth-container {
+        max-width: 500px;
+        width: 100%;
+    }
+    
+    .auth-card {
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 50px 40px;
+        border: 1px solid rgba(255, 107, 53, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .auth-logo h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+    }
+    
+    .auth-logo p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 20px;
+    }
+    
+    .form-control {
+        background: rgba(26, 26, 46, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 12px;
+        padding: 15px;
+        height: 60px;
+    }
+    
+    .form-control:focus {
+        background: rgba(26, 26, 46, 0.9);
+        border-color: #ff6b35;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+    }
+    
+    .form-floating label {
+        color: rgba(255, 255, 255, 0.7);
+        padding: 1rem 1rem;
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        border: none;
+        color: white;
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 107, 53, 0.5);
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 30px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .auth-footer a {
+        color: #ff6b35;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-footer a:hover {
+        color: #f7931e;
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background: rgba(222, 73, 60, 0.2);
+        border-left: 4px solid #de493c;
+        color: #ff8080;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h1><i class="fas fa-shield-alt"></i> NetSecure</h1>
+                <p>Security Operations Platform</p>
+            </div>
+            
+            {% if form.errors %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> Invalid username or password. Please try again.
+                </div>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-floating">
+                    {{ form.username }}
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                </div>
+                
+                <div class="form-floating">
+                    {{ form.password }}
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="{% url 'accounts:register' %}">Register here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Defense Implementations{% endblock %}
+{% block page_title %}Defense Implementations{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-custom">
+        <h3 class="card-title"><i class="fas fa-tasks"></i> My Defense Implementations</h3>
+        <a href="{% url 'defense:recommendation_list' %}" class="btn btn-gradient-accent">
+            <i class="fas fa-plus"></i> New Implementation
+        </a>
+    </div>
+    
+    {% if implementations %}
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>Defense Technique</th>
+                    <th>Target Vulnerability</th>
+                    <th>Status</th>
+                    <th>Start Date</th>
+                    <th>Completion Date</th>
+                    <th>Success Rate</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for impl in implementations %}
+                <tr>
+                    <td><strong>{{ impl.recommendation.defense_technique.name }}</strong></td>
+                    <td>
+                        <code style="color: #ff6b35;">{{ impl.recommendation.vulnerability.cve_id }}</code>
+                        <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6);">
+                            {{ impl.recommendation.vulnerability.name|truncatewords:5 }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if impl.status == 'completed' %}
+                            <span class="badge badge-low"><i class="fas fa-check"></i> Completed</span>
+                        {% elif impl.status == 'in_progress' %}
+                            <span class="badge badge-medium"><i class="fas fa-spinner"></i> In Progress</span>
+                        {% elif impl.status == 'planned' %}
+                            <span class="badge badge-high"><i class="fas fa-clock"></i> Planned</span>
+                        {% else %}
+                            <span class="badge badge-critical"><i class="fas fa-times"></i> Failed</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if impl.start_date %}
+                            {{ impl.start_date|date:"M d, Y" }}
+                        {% else %}
+                            <span style="color: rgba(255, 255, 255, 0.4);">Not started</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if impl.completion_date %}
+                            {{ impl.completion_date|date:"M d, Y" }}
+                        {% else %}
+                            <span style="color: rgba(255, 255, 255, 0.4);">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if impl.success_rate %}
+                            <strong style="color: #38ef7d;">{{ impl.success_rate|floatformat:1 }}%</strong>
+                        {% else %}
+                            <span style="color: rgba(255, 255, 255, 0.4);">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if impl.status != 'completed' %}
+                        <form method="post" action="{% url 'defense:update_implementation_status' impl.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <select name="status" class="form-select form-select-sm" style="width: auto; display: inline-block; background: rgba(26, 26, 46, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff;" onchange="this.form.submit()">
+                                <option value="planned" {% if impl.status == 'planned' %}selected{% endif %}>Planned</option>
+                                <option value="in_progress" {% if impl.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="completed" {% if impl.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="failed" {% if impl.status == 'failed' %}selected{% endif %}>Failed</option>
+                            </select>
+                        </form>
+                        {% else %}
+                            <span style="color: #38ef7d;"><i class="fas fa-check-circle"></i></span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px;">
+        <i class="fas fa-tasks" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
+        <h4 style="margin-bottom: 10px;">No Implementations Yet</h4>
+        <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 25px;">Start implementing defense techniques from recommendations.</p>
+        <a href="{% url 'defense:recommendation_list' %}" class="btn btn-gradient-accent">
+            <i class="fas fa-lightbulb"></i> View Recommendations
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

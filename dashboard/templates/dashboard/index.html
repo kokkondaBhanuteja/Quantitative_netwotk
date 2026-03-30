@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Network Security System{% endblock %}
+{% block page_title %}Security Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-icon">
+            <i class="fas fa-radar"></i>
+        </div>
+        <div class="stat-value">{{ total_scans }}</div>
+        <div class="stat-label">Total Scans</div>
+    </div>
+    
+    <div class="stat-card danger">
+        <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-value">{{ critical_vulnerabilities }}</div>
+        <div class="stat-label">Critical Vulnerabilities</div>
+    </div>
+    
+    <div class="stat-card warning">
+        <div class="stat-icon">
+            <i class="fas fa-shield-virus"></i>
+        </div>
+        <div class="stat-value">{{ high_vulnerabilities }}</div>
+        <div class="stat-label">High Risk Issues</div>
+    </div>
+    
+    <div class="stat-card accent">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-value">{{ mitigated_vulnerabilities }}</div>
+        <div class="stat-label">Mitigated Threats</div>
+    </div>
+</div>
+
+<!-- Threat Level Alert -->
+<div class="content-card" style="background: linear-gradient(135deg, rgba(222, 73, 60, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%); border-left: 5px solid {% if threat_level == 'Critical' %}#de493c{% elif threat_level == 'High' %}#f7b731{% elif threat_level == 'Medium' %}#0db4b9{% else %}#38ef7d{% endif %};">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="font-size: 3rem;">
+            {% if threat_level == 'Critical' %}
+                <i class="fas fa-exclamation-circle" style="color: #de493c;"></i>
+            {% elif threat_level == 'High' %}
+                <i class="fas fa-exclamation-triangle" style="color: #f7b731;"></i>
+            {% elif threat_level == 'Medium' %}
+                <i class="fas fa-info-circle" style="color: #0db4b9;"></i>
+            {% else %}
+                <i class="fas fa-check-circle" style="color: #38ef7d;"></i>
+            {% endif %}
+        </div>
+        <div>
+            <h3 style="margin: 0; font-family: 'Orbitron', sans-serif;">System Threat Level: <span style="color: {% if threat_level == 'Critical' %}#de493c{% elif threat_level == 'High' %}#f7b731{% elif threat_level == 'Medium' %}#0db4b9{% else %}#38ef7d{% endif %};">{{ threat_level }}</span></h3>
+            <p style="margin: 5px 0 0 0; color: rgba(255, 255, 255, 0.7);">
+                {% if threat_level == 'Critical' %}
+                    Immediate action required. Critical vulnerabilities detected.
+                {% elif threat_level == 'High' %}
+                    High priority threats identified. Review and address promptly.
+                {% elif threat_level == 'Medium' %}
+                    Moderate risk level. Regular monitoring recommended.
+                {% else %}
+                    System is secure. Continue routine monitoring.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Scans -->
+<div class="content-card">
+    <div class="card-header-custom">
+        <h3 class="card-title"><i class="fas fa-history"></i> Recent Security Scans</h3>
+        <a href="{% url 'vulnerability:scan_create' %}" class="btn btn-gradient-primary">
+            <i class="fas fa-plus"></i> New Scan
+        </a>
+    </div>
+    
+    {% if recent_scans %}
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>Scan Name</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Vulnerabilities</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in recent_scans %}
+                <tr>
+                    <td><strong>{{ scan.scan_name }}</strong></td>
+                    <td><span class="badge badge-medium">{{ scan.get_scan_type_display }}</span></td>
+                    <td>
+                        {% if scan.status == 'completed' %}
+                            <span class="badge badge-low"><i class="fas fa-check"></i> Completed</span>
+                        {% elif scan.status == 'running' %}
+                            <span class="badge badge-medium"><i class="fas fa-spinner fa-spin"></i> Running</span>
+                        {% else %}
+                            <span class="badge badge-high">{{ scan.status|title }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-critical">{{ scan.critical_count }} Critical</span>
+                        <span class="badge badge-high">{{ scan.high_count }} High</span>
+                    </td>
+                    <td>{{ scan.start_time|date:"M d, Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'vulnerability:scan_detail' scan.pk %}" class="btn btn-sm btn-gradient-secondary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+        <p>No scans yet. Start your first security scan to identify vulnerabilities.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Recent Vulnerabilities -->
+<div class="content-card">
+    <div class="card-header-custom">
+        <h3 class="card-title"><i class="fas fa-bug"></i> Recent Vulnerabilities</h3>
+        <a href="{% url 'vulnerability:dashboard' %}" class="btn btn-gradient-accent">
+            <i class="fas fa-list"></i> View All
+        </a>
+    </div>
+    
+    {% if recent_vulnerabilities %}
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>CVE ID</th>
+                    <th>Vulnerability</th>
+                    <th>Severity</th>
+                    <th>CVSS Score</th>
+                    <th>Affected System</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vuln in recent_vulnerabilities %}
+                <tr>
+                    <td><code style="color: #ff6b35;">{{ vuln.cve_id }}</code></td>
+                    <td><strong>{{ vuln.name|truncatewords:6 }}</strong></td>
+                    <td>
+                        {% if vuln.severity == 'critical' %}
+                            <span class="badge badge-critical">CRITICAL</span>
+                        {% elif vuln.severity == 'high' %}
+                            <span class="badge badge-high">HIGH</span>
+                        {% elif vuln.severity == 'medium' %}
+                            <span class="badge badge-medium">MEDIUM</span>
+                        {% else %}
+                            <span class="badge badge-low">LOW</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ vuln.cvss_score }}</strong></td>
+                    <td>{{ vuln.affected_system }}</td>
+                    <td>
+                        {% if vuln.is_mitigated %}
+                            <span style="color: #38ef7d;"><i class="fas fa-check-circle"></i> Mitigated</span>
+                        {% else %}
+                            <span style="color: #de493c;"><i class="fas fa-times-circle"></i> Active</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+        <i class="fas fa-shield-check" style="font-size: 3rem; margin-bottom: 15px; color: #38ef7d;"></i>
+        <p>No vulnerabilities detected. Your system is secure!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Recent Activity -->
+<div class="content-card">
+    <div class="card-header-custom">
+        <h3 class="card-title"><i class="fas fa-stream"></i> Recent Activity</h3>
+    </div>
+    
+    {% if recent_activities %}
+    <div class="activity-timeline">
+        {% for activity in recent_activities %}
+        <div style="display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <div style="color: #ff6b35; font-size: 1.2rem; width: 30px;">
+                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+            </div>
+            <div style="flex: 1;">
+                <div style="font-weight: 600;">{{ activity.action }}</div>
+                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: 3px;">
+                    {{ activity.timestamp|date:"M d, Y H:i" }} - {{ activity.ip_address }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 15px;"></i>
+        <p>No recent activity to display.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

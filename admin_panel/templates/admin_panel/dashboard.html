@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}System Administration{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    
+    <div class="stat-card secondary">
+        <div class="stat-icon">
+            <i class="fas fa-radar"></i>
+        </div>
+        <div class="stat-value">{{ total_scans }}</div>
+        <div class="stat-label">Total Scans</div>
+    </div>
+    
+    <div class="stat-card danger">
+        <div class="stat-icon">
+            <i class="fas fa-bug"></i>
+        </div>
+        <div class="stat-value">{{ total_vulnerabilities }}</div>
+        <div class="stat-label">Vulnerabilities Found</div>
+    </div>
+    
+    <div class="stat-card accent">
+        <div class="stat-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="stat-value">{{ total_techniques }}</div>
+        <div class="stat-label">Defense Techniques</div>
+    </div>
+</div>
+
+<!-- Critical Alerts -->
+{% if critical_vulnerabilities > 0 or high_vulnerabilities > 0 %}
+<div class="content-card" style="background: linear-gradient(135deg, rgba(222, 73, 60, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%); border-left: 5px solid #de493c; margin-bottom: 25px;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #de493c;"></i>
+        <div>
+            <h4 style="margin: 0 0 10px 0; color: #de493c; font-family: 'Orbitron', sans-serif;">
+                System-Wide Security Alert
+            </h4>
+            <p style="margin: 0; color: rgba(255, 255, 255, 0.9);">
+                <strong>{{ critical_vulnerabilities }}</strong> critical and <strong>{{ high_vulnerabilities }}</strong> high severity vulnerabilities detected across all networks. Immediate attention required.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Recent Users -->
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="card-title"><i class="fas fa-user-plus"></i> Recent User Registrations</h3>
+                <a href="{% url 'admin_panel:user_management' %}" class="btn btn-gradient-primary">
+                    <i class="fas fa-users-cog"></i> Manage Users
+                </a>
+            </div>
+            
+            {% if recent_users %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_obj in recent_users %}
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 35px; height: 35px; border-radius: 50%; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                                        {{ user_obj.username.0|upper }}
+                                    </div>
+                                    <strong>{{ user_obj.username }}</strong>
+                                </div>
+                            </td>
+                            <td>{{ user_obj.email }}</td>
+                            <td>
+                                <span class="badge {% if user_obj.profile.role == 'admin' %}badge-critical{% else %}badge-medium{% endif %}">
+                                    {{ user_obj.profile.role|title }}
+                                </span>
+                            </td>
+                            <td>{{ user_obj.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                {% if user_obj.is_active %}
+                                    <span style="color: #38ef7d;"><i class="fas fa-check-circle"></i> Active</span>
+                                {% else %}
+                                    <span style="color: #de493c;"><i class="fas fa-times-circle"></i> Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_panel:user_detail' user_obj.id %}" class="btn btn-sm btn-gradient-secondary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No users registered yet.</p>
+            {% endif %}
+        </div>
+        
+        <!-- Recent Scans -->
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="card-title"><i class="fas fa-radar"></i> Recent System Scans</h3>
+            </div>
+            
+            {% if recent_scans %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Scan Name</th>
+                            <th>User</th>
+                            <th>Status</th>
+                            <th>Vulnerabilities</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in recent_scans %}
+                        <tr>
+                            <td><strong>{{ scan.scan_name|truncatewords:5 }}</strong></td>
+                            <td>{{ scan.initiated_by.username }}</td>
+                            <td>
+                                {% if scan.status == 'completed' %}
+                                    <span class="badge badge-low">Completed</span>
+                                {% else %}
+                                    <span class="badge badge-high">{{ scan.status|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 5px;">
+                                    <span class="badge badge-critical">{{ scan.critical_count }}</span>
+                                    <span class="badge badge-high">{{ scan.high_count }}</span>
+                                    <span class="badge badge-medium">{{ scan.medium_count }}</span>
+                                </div>
+                            </td>
+                            <td>{{ scan.start_time|date:"M d, H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No scans performed yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Quick Actions -->
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="{% url 'admin_panel:user_management' %}" class="btn btn-gradient-primary w-100">
+                    <i class="fas fa-users-cog"></i> User Management
+                </a>
+                <a href="{% url 'admin_panel:system_analytics' %}" class="btn btn-gradient-secondary w-100">
+                    <i class="fas fa-chart-line"></i> System Analytics
+                </a>
+                <a href="{% url 'admin_panel:network_config_management' %}" class="btn btn-gradient-accent w-100">
+                    <i class="fas fa-network-wired"></i> Network Config
+                </a>
+                <a href="{% url 'admin_panel:system_maintenance' %}" class="btn btn-gradient-danger w-100">
+                    <i class="fas fa-tools"></i> System Maintenance
+                </a>
+            </div>
+        </div>
+        
+        <!-- System Activity -->
+        <div class="content-card" style="margin-top: 20px;">
+            <div class="card-header-custom">
+                <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
+            </div>
+            
+            {% if recent_activities %}
+            <div style="max-height: 400px; overflow-y: auto;">
+                {% for activity in recent_activities %}
+                <div style="padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="color: #ff6b35; width: 20px;">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.9rem; margin-bottom: 3px;">
+                                <strong>{{ activity.user.username }}</strong> - {{ activity.action }}
+                            </div>
+                            <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5);">
+                                {{ activity.timestamp|timesince }} ago
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No recent activity.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
