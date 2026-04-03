@@ -16,11 +16,11 @@ class UserRegistrationForm(UserCreationForm):
         'class': 'form-control',
         'placeholder': 'Last Name'
     }))
-    
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
-        
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
@@ -50,25 +50,25 @@ class UserLoginForm(AuthenticationForm):
 
 class UserProfileForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
-        'class': 'form-control'
+        'class': 'form-control form-control-custom'
     }))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
-        'class': 'form-control'
+        'class': 'form-control form-control-custom'
     }))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
-        'class': 'form-control'
+        'class': 'form-control form-control-custom'
     }))
-    
+
     class Meta:
         model = UserProfile
         fields = ['phone', 'organization', 'alert_email', 'alert_sms']
         widgets = {
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'organization': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control form-control-custom', 'placeholder': 'Phone number'}),
+            'organization': forms.TextInput(attrs={'class': 'form-control form-control-custom', 'placeholder': 'Organization name'}),
             'alert_email': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'alert_sms': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
