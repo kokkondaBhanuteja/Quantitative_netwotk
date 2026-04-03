@@ -1,0 +1,39 @@
+{% if page_obj.has_other_pages %}
+<nav class="pagination-custom">
+    {% if page_obj.has_previous %}
+        <div class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </div>
+    {% else %}
+        <div class="page-item disabled">
+            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+        </div>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <div class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </div>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <div class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <div class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    {% else %}
+        <div class="page-item disabled">
+            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+        </div>
+    {% endif %}
+</nav>
+{% endif %}

@@ -5,15 +5,15 @@
 
 {% block content %}
 <div class="content-card">
-    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 30px;">
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 2rem; border: 3px solid rgba(255, 255, 255, 0.2);">
+    <div class="action-bar" style="align-items: start; margin-bottom: 30px;">
+        <div class="flex-center gap-lg">
+            <div class="avatar avatar-lg">
                 {{ user_obj.username.0|upper }}
             </div>
             <div>
                 <h2 style="font-family: 'Orbitron', sans-serif; margin-bottom: 5px;">{{ user_obj.get_full_name|default:user_obj.username }}</h2>
-                <div style="color: rgba(255, 255, 255, 0.7); margin-bottom: 10px;">@{{ user_obj.username }}</div>
-                <div style="display: flex; gap: 10px;">
+                <div class="text-muted-custom" style="margin-bottom: 10px;">@{{ user_obj.username }}</div>
+                <div class="flex-center gap-sm">
                     <span class="badge {% if user_obj.profile.role == 'admin' %}badge-critical{% else %}badge-medium{% endif %}">
                         {{ user_obj.profile.role|title }}
                     </span>
@@ -25,46 +25,54 @@
                 </div>
             </div>
         </div>
-        
+
         <a href="{% url 'admin_panel:toggle_user_role' user_obj.id %}" class="btn btn-gradient-accent">
             <i class="fas fa-user-shield"></i> Toggle Role
         </a>
     </div>
-    
+
     <div class="row">
         <div class="col-md-8">
             <!-- User Information -->
-            <div style="background: rgba(255, 107, 53, 0.1); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
-                <h5 style="color: #ff6b35; margin-bottom: 20px;">
+            <div class="detail-panel">
+                <h5 class="section-heading text-coral">
                     <i class="fas fa-info-circle"></i> User Information
                 </h5>
-                
+
                 <div class="row">
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Email</div>
-                        <div style="font-weight: 600;">{{ user_obj.email }}</div>
+                    <div class="col-md-6">
+                        <div class="detail-group">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">{{ user_obj.email }}</div>
+                        </div>
                     </div>
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Phone</div>
-                        <div style="font-weight: 600;">{{ user_obj.profile.phone|default:"-" }}</div>
+                    <div class="col-md-6">
+                        <div class="detail-group">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value">{{ user_obj.profile.phone|default:"-" }}</div>
+                        </div>
                     </div>
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Organization</div>
-                        <div style="font-weight: 600;">{{ user_obj.profile.organization|default:"-" }}</div>
+                    <div class="col-md-6">
+                        <div class="detail-group">
+                            <div class="detail-label">Organization</div>
+                            <div class="detail-value">{{ user_obj.profile.organization|default:"-" }}</div>
+                        </div>
                     </div>
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">Joined</div>
-                        <div style="font-weight: 600;">{{ user_obj.date_joined|date:"M d, Y H:i" }}</div>
+                    <div class="col-md-6">
+                        <div class="detail-group">
+                            <div class="detail-label">Joined</div>
+                            <div class="detail-value">{{ user_obj.date_joined|date:"M d, Y H:i" }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- User Scans -->
             <div class="content-card" style="background: rgba(26, 26, 46, 0.5); margin-bottom: 20px;">
-                <h5 style="color: #0db4b9; margin-bottom: 15px;">
+                <h5 class="section-heading text-teal">
                     <i class="fas fa-radar"></i> User Scans ({{ scans.count }})
                 </h5>
-                
+
                 {% if scans %}
                 <div class="table-responsive">
                     <table class="table table-custom">
@@ -98,41 +106,43 @@
                     </table>
                 </div>
                 {% else %}
-                <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No scans performed.</p>
+                <p class="empty-state-text" style="text-align: center; padding: 20px;">No scans performed.</p>
                 {% endif %}
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <!-- Recent Activity -->
             <div class="content-card" style="background: rgba(26, 26, 46, 0.5);">
-                <h5 style="color: #38ef7d; margin-bottom: 15px;">
+                <h5 class="section-heading text-mint">
                     <i class="fas fa-history"></i> Recent Activity
                 </h5>
-                
+
                 {% if activities %}
                 <div style="max-height: 500px; overflow-y: auto;">
                     {% for activity in activities %}
-                    <div style="padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="font-size: 0.9rem; margin-bottom: 3px;">{{ activity.action }}</div>
-                        <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5);">
-                            {{ activity.timestamp|date:"M d, Y H:i" }}
+                    <div class="activity-item">
+                        <div class="activity-content">
+                            <div class="activity-action">{{ activity.action }}</div>
+                            <div class="activity-meta">
+                                {{ activity.timestamp|date:"M d, Y H:i" }}
+                            </div>
+                            {% if activity.ip_address %}
+                            <div class="activity-meta">
+                                IP: {{ activity.ip_address }}
+                            </div>
+                            {% endif %}
                         </div>
-                        {% if activity.ip_address %}
-                        <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4);">
-                            IP: {{ activity.ip_address }}
-                        </div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No activity recorded.</p>
+                <p class="empty-state-text" style="text-align: center; padding: 20px;">No activity recorded.</p>
                 {% endif %}
             </div>
         </div>
     </div>
-    
+
     <div style="margin-top: 20px;">
         <a href="{% url 'admin_panel:user_management' %}" class="btn btn-gradient-secondary">
             <i class="fas fa-arrow-left"></i> Back to Users

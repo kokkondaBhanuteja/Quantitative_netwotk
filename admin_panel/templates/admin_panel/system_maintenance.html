@@ -6,22 +6,17 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6">
-        <div class="content-card" style="background: linear-gradient(135deg, rgba(222, 73, 60, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%); border-left: 5px solid #de493c;">
-            <h4 style="color: #de493c; margin-bottom: 20px;">
+        <div class="maintenance-card danger">
+            <h4 class="text-crimson mb-3">
                 <i class="fas fa-exclamation-triangle"></i> Clear Activity Logs
             </h4>
-            
-            <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px;">
+            <p class="text-muted-custom mb-3">
                 Remove all activity logs from the database. This action cannot be undone.
             </p>
-            
-            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Total Activity Logs:</span>
-                    <strong style="color: #ff6b35; font-size: 1.5rem;">{{ log_count }}</strong>
-                </div>
+            <div class="maintenance-stat">
+                <span>Total Activity Logs:</span>
+                <span class="maintenance-stat-value text-coral">{{ log_count }}</span>
             </div>
-            
             <form method="post" onsubmit="return confirm('Are you sure you want to clear all activity logs? This cannot be undone.');">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="clear_logs">
@@ -31,24 +26,19 @@
             </form>
         </div>
     </div>
-    
+
     <div class="col-md-6">
-        <div class="content-card" style="background: linear-gradient(135deg, rgba(247, 183, 49, 0.2) 0%, rgba(254, 211, 48, 0.2) 100%); border-left: 5px solid #f7b731;">
-            <h4 style="color: #f7b731; margin-bottom: 20px;">
+        <div class="maintenance-card warning">
+            <h4 class="text-amber mb-3">
                 <i class="fas fa-broom"></i> Clean Failed Scans
             </h4>
-            
-            <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px;">
+            <p class="text-muted-custom mb-3">
                 Remove failed scan records to clean up the database.
             </p>
-            
-            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Failed Scans:</span>
-                    <strong style="color: #f7b731; font-size: 1.5rem;">{{ failed_scans }}</strong>
-                </div>
+            <div class="maintenance-stat">
+                <span>Failed Scans:</span>
+                <span class="maintenance-stat-value text-amber">{{ failed_scans }}</span>
             </div>
-            
             <form method="post" onsubmit="return confirm('Are you sure you want to remove all failed scans?');">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="reset_scans">
@@ -60,38 +50,38 @@
     </div>
 </div>
 
-<div class="content-card" style="margin-top: 25px;">
+<div class="content-card mt-4">
     <div class="card-header-custom">
         <h3 class="card-title"><i class="fas fa-info-circle"></i> System Information</h3>
     </div>
-    
+
     <div class="row">
         <div class="col-md-3">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-database" style="font-size: 2.5rem; color: #0db4b9; margin-bottom: 10px;"></i>
-                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 5px;">Database</div>
-                <div style="font-weight: 700; font-size: 1.2rem;">MySQL</div>
+            <div class="sys-info-card">
+                <i class="fas fa-database text-teal"></i>
+                <div class="sys-info-label">Database</div>
+                <div class="sys-info-value">MySQL</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fab fa-python" style="font-size: 2.5rem; color: #38ef7d; margin-bottom: 10px;"></i>
-                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 5px;">Framework</div>
-                <div style="font-weight: 700; font-size: 1.2rem;">Django 5.0</div>
+            <div class="sys-info-card">
+                <i class="fab fa-python text-mint"></i>
+                <div class="sys-info-label">Framework</div>
+                <div class="sys-info-value">Django 5.0</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-server" style="font-size: 2.5rem; color: #ff6b35; margin-bottom: 10px;"></i>
-                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 5px;">Server Status</div>
-                <div style="font-weight: 700; font-size: 1.2rem; color: #38ef7d;">Online</div>
+            <div class="sys-info-card">
+                <i class="fas fa-server text-coral"></i>
+                <div class="sys-info-label">Server Status</div>
+                <div class="sys-info-value text-mint">Online</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: #f7b731; margin-bottom: 10px;"></i>
-                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 5px;">Security</div>
-                <div style="font-weight: 700; font-size: 1.2rem; color: #38ef7d;">Protected</div>
+            <div class="sys-info-card">
+                <i class="fas fa-shield-alt text-amber"></i>
+                <div class="sys-info-label">Security</div>
+                <div class="sys-info-value text-mint">Protected</div>
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from accounts.models import UserProfile, ActivityLog
 from vulnerability.models import VulnerabilityScan, Vulnerability, NetworkEnvironment
@@ -44,8 +45,10 @@ def admin_dashboard(request):
 @login_required
 @user_passes_test(is_admin)
 def user_management(request):
-    users = User.objects.all().select_related('profile')
-    return render(request, 'admin_panel/user_management.html', {'users': users})
+    users_qs = User.objects.all().select_related('profile').order_by('-date_joined')
+    paginator = Paginator(users_qs, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'admin_panel/user_management.html', {'users': page_obj, 'page_obj': page_obj})
 
 
 @login_required

@@ -13,7 +13,7 @@
         <div class="stat-value">{{ total_scans }}</div>
         <div class="stat-label">Total Scans</div>
     </div>
-    
+
     <div class="stat-card danger">
         <div class="stat-icon">
             <i class="fas fa-exclamation-triangle"></i>
@@ -21,7 +21,7 @@
         <div class="stat-value">{{ critical_vulnerabilities }}</div>
         <div class="stat-label">Critical Vulnerabilities</div>
     </div>
-    
+
     <div class="stat-card warning">
         <div class="stat-icon">
             <i class="fas fa-shield-virus"></i>
@@ -29,7 +29,7 @@
         <div class="stat-value">{{ high_vulnerabilities }}</div>
         <div class="stat-label">High Risk Issues</div>
     </div>
-    
+
     <div class="stat-card accent">
         <div class="stat-icon">
             <i class="fas fa-check-circle"></i>
@@ -40,33 +40,31 @@
 </div>
 
 <!-- Threat Level Alert -->
-<div class="content-card" style="background: linear-gradient(135deg, rgba(222, 73, 60, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%); border-left: 5px solid {% if threat_level == 'Critical' %}#de493c{% elif threat_level == 'High' %}#f7b731{% elif threat_level == 'Medium' %}#0db4b9{% else %}#38ef7d{% endif %};">
-    <div style="display: flex; align-items: center; gap: 20px;">
-        <div style="font-size: 3rem;">
+<div class="content-card threat-banner level-{% if threat_level == 'Critical' %}critical{% elif threat_level == 'High' %}high{% elif threat_level == 'Medium' %}medium{% else %}low{% endif %}">
+    <div class="threat-banner-icon">
+        {% if threat_level == 'Critical' %}
+            <i class="fas fa-exclamation-circle text-crimson"></i>
+        {% elif threat_level == 'High' %}
+            <i class="fas fa-exclamation-triangle text-amber"></i>
+        {% elif threat_level == 'Medium' %}
+            <i class="fas fa-info-circle text-teal"></i>
+        {% else %}
+            <i class="fas fa-check-circle text-mint"></i>
+        {% endif %}
+    </div>
+    <div>
+        <h3>System Threat Level: <span class="{% if threat_level == 'Critical' %}text-crimson{% elif threat_level == 'High' %}text-amber{% elif threat_level == 'Medium' %}text-teal{% else %}text-mint{% endif %}">{{ threat_level }}</span></h3>
+        <p>
             {% if threat_level == 'Critical' %}
-                <i class="fas fa-exclamation-circle" style="color: #de493c;"></i>
+                Immediate action required. Critical vulnerabilities detected.
             {% elif threat_level == 'High' %}
-                <i class="fas fa-exclamation-triangle" style="color: #f7b731;"></i>
+                High priority threats identified. Review and address promptly.
             {% elif threat_level == 'Medium' %}
-                <i class="fas fa-info-circle" style="color: #0db4b9;"></i>
+                Moderate risk level. Regular monitoring recommended.
             {% else %}
-                <i class="fas fa-check-circle" style="color: #38ef7d;"></i>
+                System is secure. Continue routine monitoring.
             {% endif %}
-        </div>
-        <div>
-            <h3 style="margin: 0; font-family: 'Orbitron', sans-serif;">System Threat Level: <span style="color: {% if threat_level == 'Critical' %}#de493c{% elif threat_level == 'High' %}#f7b731{% elif threat_level == 'Medium' %}#0db4b9{% else %}#38ef7d{% endif %};">{{ threat_level }}</span></h3>
-            <p style="margin: 5px 0 0 0; color: rgba(255, 255, 255, 0.7);">
-                {% if threat_level == 'Critical' %}
-                    Immediate action required. Critical vulnerabilities detected.
-                {% elif threat_level == 'High' %}
-                    High priority threats identified. Review and address promptly.
-                {% elif threat_level == 'Medium' %}
-                    Moderate risk level. Regular monitoring recommended.
-                {% else %}
-                    System is secure. Continue routine monitoring.
-                {% endif %}
-            </p>
-        </div>
+        </p>
     </div>
 </div>
 
@@ -78,7 +76,7 @@
             <i class="fas fa-plus"></i> New Scan
         </a>
     </div>
-    
+
     {% if recent_scans %}
     <div class="table-responsive">
         <table class="table table-custom">
@@ -122,9 +120,9 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
-        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
-        <p>No scans yet. Start your first security scan to identify vulnerabilities.</p>
+    <div class="empty-state">
+        <i class="fas fa-inbox empty-state-icon"></i>
+        <p class="empty-state-text">No scans yet. Start your first security scan to identify vulnerabilities.</p>
     </div>
     {% endif %}
 </div>
@@ -137,7 +135,7 @@
             <i class="fas fa-list"></i> View All
         </a>
     </div>
-    
+
     {% if recent_vulnerabilities %}
     <div class="table-responsive">
         <table class="table table-custom">
@@ -154,7 +152,7 @@
             <tbody>
                 {% for vuln in recent_vulnerabilities %}
                 <tr>
-                    <td><code style="color: #ff6b35;">{{ vuln.cve_id }}</code></td>
+                    <td><code>{{ vuln.cve_id }}</code></td>
                     <td><strong>{{ vuln.name|truncatewords:6 }}</strong></td>
                     <td>
                         {% if vuln.severity == 'critical' %}
@@ -171,9 +169,9 @@
                     <td>{{ vuln.affected_system }}</td>
                     <td>
                         {% if vuln.is_mitigated %}
-                            <span style="color: #38ef7d;"><i class="fas fa-check-circle"></i> Mitigated</span>
+                            <span class="status-active"><i class="fas fa-check-circle"></i> Mitigated</span>
                         {% else %}
-                            <span style="color: #de493c;"><i class="fas fa-times-circle"></i> Active</span>
+                            <span class="status-inactive"><i class="fas fa-times-circle"></i> Active</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -182,9 +180,9 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
-        <i class="fas fa-shield-check" style="font-size: 3rem; margin-bottom: 15px; color: #38ef7d;"></i>
-        <p>No vulnerabilities detected. Your system is secure!</p>
+    <div class="empty-state">
+        <i class="fas fa-shield-check empty-state-icon"></i>
+        <p class="empty-state-text">No vulnerabilities detected. Your system is secure!</p>
     </div>
     {% endif %}
 </div>
@@ -194,27 +192,23 @@
     <div class="card-header-custom">
         <h3 class="card-title"><i class="fas fa-stream"></i> Recent Activity</h3>
     </div>
-    
+
     {% if recent_activities %}
     <div class="activity-timeline">
         {% for activity in recent_activities %}
-        <div style="display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-            <div style="color: #ff6b35; font-size: 1.2rem; width: 30px;">
-                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
-            </div>
-            <div style="flex: 1;">
-                <div style="font-weight: 600;">{{ activity.action }}</div>
-                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: 3px;">
-                    {{ activity.timestamp|date:"M d, Y H:i" }} - {{ activity.ip_address }}
-                </div>
+        <div class="activity-item">
+            <div class="activity-dot"><i class="fas fa-circle"></i></div>
+            <div class="activity-content">
+                <div class="activity-action">{{ activity.action }}</div>
+                <div class="activity-meta">{{ activity.timestamp|date:"M d, Y H:i" }} - {{ activity.ip_address }}</div>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
-        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 15px;"></i>
-        <p>No recent activity to display.</p>
+    <div class="empty-state">
+        <i class="fas fa-history empty-state-icon"></i>
+        <p class="empty-state-text">No recent activity to display.</p>
     </div>
     {% endif %}
 </div>

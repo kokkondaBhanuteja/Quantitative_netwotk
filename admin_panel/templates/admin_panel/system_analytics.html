@@ -10,60 +10,51 @@
             <div class="card-header-custom">
                 <h3 class="card-title"><i class="fas fa-chart-pie"></i> Vulnerability Distribution</h3>
             </div>
-            
-            <div style="padding: 20px 0;">
+
+            <div class="py-3">
                 {% for item in vuln_by_severity %}
-                <div style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="text-transform: capitalize;">{{ item.severity }}</span>
-                        <strong style="color: 
-                            {% if item.severity == 'critical' %}#de493c
-                            {% elif item.severity == 'high' %}#f7b731
-                            {% elif item.severity == 'medium' %}#0db4b9
-                            {% else %}#38ef7d{% endif %};">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-capitalize">{{ item.severity }}</span>
+                        <strong class="{% if item.severity == 'critical' %}text-crimson{% elif item.severity == 'high' %}text-amber{% elif item.severity == 'medium' %}text-teal{% else %}text-mint{% endif %}">
                             {{ item.count }}
                         </strong>
                     </div>
-                    <div style="background: rgba(255,255,255,0.1); height: 12px; border-radius: 6px; overflow: hidden;">
-                        <div style="background: 
-                            {% if item.severity == 'critical' %}linear-gradient(90deg, #de493c 0%, #ff6b6b 100%)
-                            {% elif item.severity == 'high' %}linear-gradient(90deg, #f7b731 0%, #fed330 100%)
-                            {% elif item.severity == 'medium' %}linear-gradient(90deg, #0db4b9 0%, #00d4a1 100%)
-                            {% else %}linear-gradient(90deg, #11998e 0%, #38ef7d 100%){% endif %}; 
-                            height: 100%; width: {{ item.count }}%;"></div>
+                    <div class="progress-track">
+                        <div class="progress-fill {% if item.severity == 'critical' %}critical{% elif item.severity == 'high' %}high{% elif item.severity == 'medium' %}medium{% else %}low{% endif %}" style="width: {{ item.count }}%;"></div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
-        
-        <div class="content-card" style="margin-top: 20px;">
+
+        <div class="content-card mt-3">
             <div class="card-header-custom">
                 <h3 class="card-title"><i class="fas fa-tasks"></i> Scan Status</h3>
             </div>
-            
-            <div style="padding: 20px 0;">
+
+            <div class="py-3">
                 {% for item in scan_by_status %}
-                <div style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="text-transform: capitalize;">{{ item.status }}</span>
-                        <strong style="color: #ff6b35;">{{ item.count }}</strong>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-capitalize">{{ item.status }}</span>
+                        <strong class="text-coral">{{ item.count }}</strong>
                     </div>
-                    <div style="background: rgba(255,255,255,0.1); height: 12px; border-radius: 6px; overflow: hidden;">
-                        <div style="background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%); height: 100%; width: {{ item.count }}%;"></div>
+                    <div class="progress-track">
+                        <div class="progress-fill primary" style="width: {{ item.count }}%;"></div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="content-card">
             <div class="card-header-custom">
                 <h3 class="card-title"><i class="fas fa-shield-alt"></i> Defense Techniques Performance</h3>
             </div>
-            
+
             {% if techniques %}
             <div class="table-responsive">
                 <table class="table table-custom">
@@ -80,11 +71,11 @@
                             <td><strong>{{ tech.name|truncatewords:4 }}</strong></td>
                             <td><span class="badge badge-medium">{{ tech.get_category_display }}</span></td>
                             <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 100px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
-                                        <div style="height: 100%; background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%); width: {{ tech.effectiveness_score }}%;"></div>
+                                <div class="flex-center gap-sm">
+                                    <div class="progress-track thin" style="width: 100px;">
+                                        <div class="progress-fill low" style="width: {{ tech.effectiveness_score }}%;"></div>
                                     </div>
-                                    <span style="font-weight: 600; color: #38ef7d;">{{ tech.effectiveness_score|floatformat:0 }}%</span>
+                                    <strong class="text-mint">{{ tech.effectiveness_score|floatformat:0 }}%</strong>
                                 </div>
                             </td>
                         </tr>
@@ -93,7 +84,9 @@
                 </table>
             </div>
             {% else %}
-            <p style="text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6);">No defense techniques available.</p>
+            <div class="empty-state">
+                <p class="empty-state-text">No defense techniques available.</p>
+            </div>
             {% endif %}
         </div>
     </div>

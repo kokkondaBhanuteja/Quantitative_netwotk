@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.utils import timezone
 from vulnerability.models import Vulnerability
 from .models import DefenseTechnique, DefenseRecommendation, DefenseImplementation
@@ -31,41 +32,52 @@ def recommendation_list(request):
         scan__initiated_by=request.user,
         is_mitigated=False
     )
-    
-    # Generate recommendations if not already generated
-    for vulnerability in vulnerabilities:
-        if not DefenseRecommendation.objects.filter(vulnerability=vulnerability).exists():
-            generate_recommendations_for_vulnerability(vulnerability)
-    
-    recommendations = DefenseRecommendation.objects.filter(
+
+    # Bulk-check which vulnerabilities already have recommendations
+    existing_vuln_ids = set(
+        DefenseRecommendation.objects.filter(
+            vulnerability__in=vulnerabilities
+        ).values_list('vulnerability_id', flat=True)
+    )
+
+    # Generate recommendations only for those that don't have them
+    vulns_needing_recs = [v for v in vulnerabilities if v.id not in existing_vuln_ids]
+    if vulns_needing_recs:
+        generate_recommendations_bulk(vulns_needing_recs)
+
+    recs_qs = DefenseRecommendation.objects.filter(
         vulnerability__scan__initiated_by=request.user
-    ).select_related('defense_technique', 'vulnerability')
-    
-    return render(request, 'defense/recommendation_list.html', {'recommendations': recommendations})
+    ).select_related('defense_technique', 'vulnerability').order_by('-priority_score')
+
+    paginator = Paginator(recs_qs, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'defense/recommendation_list.html', {'recommendations': page_obj, 'page_obj': page_obj})
 
 
-def generate_recommendations_for_vulnerability(vulnerability):
-    """Generate defense recommendations using ML model simulation"""
-    techniques = DefenseTechnique.objects.all()
-    
-    if not techniques.exists():
+def generate_recommendations_bulk(vulnerabilities):
+    """Generate defense recommendations for multiple vulnerabilities efficiently"""
+    techniques = list(DefenseTechnique.objects.all())
+
+    if not techniques:
         create_default_defense_techniques()
-        techniques = DefenseTechnique.objects.all()
-    
-    # Select top 3 techniques based on vulnerability type
-    selected_techniques = random.sample(list(techniques), min(3, techniques.count()))
-    
-    for idx, technique in enumerate(selected_techniques):
-        priority = 100 - (idx * 20)
-        confidence = random.uniform(0.75, 0.95)
-        
-        DefenseRecommendation.objects.create(
-            vulnerability=vulnerability,
-            defense_technique=technique,
-            priority_score=priority,
-            confidence_score=confidence,
-            justification=f"This defense technique is recommended based on the vulnerability type ({vulnerability.severity}) and system impact analysis."
-        )
+        techniques = list(DefenseTechnique.objects.all())
+
+    recommendations_to_create = []
+    for vulnerability in vulnerabilities:
+        selected_techniques = random.sample(techniques, min(3, len(techniques)))
+        for idx, technique in enumerate(selected_techniques):
+            recommendations_to_create.append(
+                DefenseRecommendation(
+                    vulnerability=vulnerability,
+                    defense_technique=technique,
+                    priority_score=100 - (idx * 20),
+                    confidence_score=random.uniform(0.75, 0.95),
+                    justification=f"This defense technique is recommended based on the vulnerability type ({vulnerability.severity}) and system impact analysis."
+                )
+            )
+
+    if recommendations_to_create:
+        DefenseRecommendation.objects.bulk_create(recommendations_to_create)
 
 
 def create_default_defense_techniques():
@@ -169,11 +181,13 @@ def implement_defense(request, recommendation_id):
 
 @login_required
 def implementation_list(request):
-    implementations = DefenseImplementation.objects.filter(
+    impl_qs = DefenseImplementation.objects.filter(
         implemented_by=request.user
     ).select_related('recommendation__defense_technique', 'recommendation__vulnerability')
-    
-    return render(request, 'defense/implementation_list.html', {'implementations': implementations})
+
+    paginator = Paginator(impl_qs, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'defense/implementation_list.html', {'implementations': page_obj, 'page_obj': page_obj})
 
 
 @login_required

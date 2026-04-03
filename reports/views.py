@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.contrib import messages
 from django.utils import timezone
@@ -11,8 +12,10 @@ from datetime import datetime
 
 @login_required
 def report_list(request):
-    reports = Report.objects.filter(generated_by=request.user)
-    return render(request, 'reports/report_list.html', {'reports': reports})
+    reports_qs = Report.objects.filter(generated_by=request.user).order_by('-generated_at')
+    paginator = Paginator(reports_qs, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'reports/report_list.html', {'reports': page_obj, 'page_obj': page_obj})
 
 
 @login_required
@@ -143,7 +146,12 @@ def generate_comprehensive_report(user):
 @login_required
 def report_detail(request, pk):
     report = get_object_or_404(Report, pk=pk, generated_by=request.user)
-    return render(request, 'reports/report_detail.html', {'report': report})
+    # Pre-format JSON for safe display (avoids |safe XSS risk)
+    report_content_json = json.dumps(report.content, indent=2, default=str)
+    return render(request, 'reports/report_detail.html', {
+        'report': report,
+        'report_content_json': report_content_json,
+    })
 
 
 @login_required

@@ -11,21 +11,21 @@
             <i class="fas fa-shield-alt"></i> All Techniques
         </a>
     </div>
-    
+
     {% if recommendations %}
-    <div style="margin-bottom: 20px; background: rgba(13, 180, 185, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #0db4b9;">
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <i class="fas fa-robot" style="font-size: 2rem; color: #0db4b9;"></i>
+    <div class="info-banner">
+        <div class="flex-center gap-md">
+            <i class="fas fa-robot info-banner-icon"></i>
             <div>
-                <strong style="color: #00d4a1;">ML-Powered Recommendations</strong>
-                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
-                    These defense techniques are recommended by our machine learning model based on vulnerability patterns, 
+                <strong class="info-banner-title">ML-Powered Recommendations</strong>
+                <p class="info-banner-text">
+                    These defense techniques are recommended by our machine learning model based on vulnerability patterns,
                     severity levels, and historical effectiveness data.
                 </p>
             </div>
         </div>
     </div>
-    
+
     <div class="table-responsive">
         <table class="table table-custom">
             <thead>
@@ -44,20 +44,20 @@
                 {% for rec in recommendations %}
                 <tr>
                     <td>
-                        <span style="font-size: 1.2rem; font-weight: 700; color: #ff6b35; font-family: 'Orbitron', sans-serif;">
+                        <span class="text-coral" style="font-size: 1.2rem; font-weight: 700; font-family: 'Orbitron', sans-serif;">
                             #{{ forloop.counter }}
                         </span>
                     </td>
                     <td>
                         <strong>{{ rec.defense_technique.name }}</strong>
-                        <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); margin-top: 3px;">
-                            <i class="fas fa-dollar-sign"></i> ${{ rec.defense_technique.estimated_cost|floatformat:0 }} | 
+                        <div class="text-muted-custom" style="margin-top: 3px;">
+                            <i class="fas fa-dollar-sign"></i> ${{ rec.defense_technique.estimated_cost|floatformat:0 }} |
                             <i class="fas fa-clock"></i> {{ rec.defense_technique.implementation_time }}
                         </div>
                     </td>
                     <td>
-                        <code style="color: #ff6b35; font-weight: 600;">{{ rec.vulnerability.cve_id }}</code>
-                        <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: 3px;">
+                        <code>{{ rec.vulnerability.cve_id }}</code>
+                        <div class="text-muted-custom" style="margin-top: 3px;">
                             {{ rec.vulnerability.name|truncatewords:5 }}
                         </div>
                         {% if rec.vulnerability.severity == 'critical' %}
@@ -67,20 +67,16 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 100px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;">
-                                <div style="height: 100%; background: 
-                                    {% if rec.priority_score >= 80 %}linear-gradient(90deg, #de493c 0%, #ff6b6b 100%)
-                                    {% elif rec.priority_score >= 60 %}linear-gradient(90deg, #f7b731 0%, #fed330 100%)
-                                    {% else %}linear-gradient(90deg, #0db4b9 0%, #00d4a1 100%){% endif %}; 
-                                    width: {{ rec.priority_score }}%;"></div>
+                        <div class="flex-center gap-sm">
+                            <div class="progress-track">
+                                <div class="progress-fill {% if rec.priority_score >= 80 %}critical{% elif rec.priority_score >= 60 %}high{% else %}medium{% endif %}" style="width: {{ rec.priority_score }}%;"></div>
                             </div>
-                            <span style="font-weight: 700; color: #ff6b35;">{{ rec.priority_score|floatformat:0 }}</span>
+                            <span class="text-coral" style="font-weight: 700;">{{ rec.priority_score|floatformat:0 }}</span>
                         </div>
                     </td>
                     <td>
                         {% widthratio rec.confidence_score 1 100 as confidence_percent %}
-                        <span class="badge badge-low" style="font-size: 0.9rem;">
+                        <span class="badge badge-low">
                             {{ confidence_percent }}%
                         </span>
                     </td>
@@ -88,20 +84,17 @@
                         <span class="badge badge-medium">{{ rec.defense_technique.get_category_display }}</span>
                     </td>
                     <td>
-                        <strong style="color: 
-                            {% if rec.defense_technique.effectiveness_score >= 85 %}#38ef7d
-                            {% elif rec.defense_technique.effectiveness_score >= 70 %}#0db4b9
-                            {% else %}#f7b731{% endif %};">
+                        <strong class="{% if rec.defense_technique.effectiveness_score >= 85 %}text-mint{% elif rec.defense_technique.effectiveness_score >= 70 %}text-teal{% else %}text-amber{% endif %}">
                             {{ rec.defense_technique.effectiveness_score|floatformat:1 }}%
                         </strong>
                     </td>
                     <td>
-                        <div style="display: flex; gap: 5px;">
-                            <a href="{% url 'defense:technique_detail' rec.defense_technique.pk %}" 
+                        <div class="flex-center gap-sm">
+                            <a href="{% url 'defense:technique_detail' rec.defense_technique.pk %}"
                                class="btn btn-sm btn-gradient-secondary" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{% url 'defense:implement_defense' rec.pk %}" 
+                            <a href="{% url 'defense:implement_defense' rec.pk %}"
                                class="btn btn-sm btn-gradient-accent" title="Implement">
                                 <i class="fas fa-play"></i>
                             </a>
@@ -112,11 +105,12 @@
             </tbody>
         </table>
     </div>
+    {% include 'includes/pagination.html' %}
     {% else %}
-    <div style="text-align: center; padding: 60px 20px;">
-        <i class="fas fa-robot" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
-        <h4 style="margin-bottom: 10px;">No Recommendations Available</h4>
-        <p style="color: rgba(255, 255, 255, 0.6); margin-bottom: 25px;">Run a vulnerability scan to get AI-powered defense recommendations.</p>
+    <div class="empty-state">
+        <i class="fas fa-robot empty-state-icon"></i>
+        <h4>No Recommendations Available</h4>
+        <p class="empty-state-text">Run a vulnerability scan to get AI-powered defense recommendations.</p>
         <a href="{% url 'vulnerability:scan_create' %}" class="btn btn-gradient-primary">
             <i class="fas fa-radar"></i> Start Vulnerability Scan
         </a>
